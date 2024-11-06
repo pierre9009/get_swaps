@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Swap Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .swap-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .swap-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .swap-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .signature {
+            font-family: monospace;
+            color: #0066cc;
+        }
+
+        .protocol {
+            padding: 4px 8px;
+            border-radius: 4px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-size: 0.9em;
+        }
+
+        .token-amount {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .token-symbol {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .arrow {
+            color: #999;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Solana Swap Analyzer</h1>
+        </div>
+
+        <table class="swap-table">
+            <thead>
+                <tr>
+                    <th>Signature</th>
+                    <th>Time</th>
+                    <th>Protocol</th>
+                    <th>Tokens Out</th>
+                    <th>Tokens In</th>
+                </tr>
+            </thead>
+            <tbody id="swapData">
+                <!-- Les données seront insérées ici par JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fonction pour charger et afficher les données
+        async function loadSwapData() {
+            try {
+                // Remplacez ceci par le chemin vers votre fichier JSON
+                const response = await fetch('swaps_data.json');
+                const data = await response.json();
+                const tbody = document.getElementById('swapData');
+
+                data.forEach(swap => {
+                    const row = document.createElement('tr');
+                    
+                    // Signature
+                    const sigCell = document.createElement('td');
+                    sigCell.innerHTML = `<span class="signature">${swap.signature.substring(0, 20)}...</span>`;
+                    
+                    // Time
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = swap.time_ago;
+                    
+                    // Protocol
+                    const protocolCell = document.createElement('td');
+                    protocolCell.innerHTML = `<span class="protocol">${swap.protocol}</span>`;
+                    
+                    // Tokens Out
+                    const tokensOutCell = document.createElement('td');
+                    tokensOutCell.innerHTML = swap.tokens_out.map(token => 
+                        `<div class="token-amount">
+                            <span>${token.amount.toFixed(6)}</span>
+                            <span class="token-symbol">${token.symbol}</span>
+                        </div>`
+                    ).join('<span class="arrow">+</span>');
+                    
+                    // Tokens In
+                    const tokensInCell = document.createElement('td');
+                    tokensInCell.innerHTML = swap.tokens_in.map(token => 
+                        `<div class="token-amount">
+                            <span>${token.amount.toFixed(6)}</span>
+                            <span class="token-symbol">${token.symbol}</span>
+                        </div>`
+                    ).join('<span class="arrow">+</span>');
+                    
+                    row.appendChild(sigCell);
+                    row.appendChild(timeCell);
+                    row.appendChild(protocolCell);
+                    row.appendChild(tokensOutCell);
+                    row.appendChild(tokensInCell);
+                    
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        }
+
+        // Charger les données au chargement de la page
+        window.addEventListener('load', loadSwapData);
+    </script>
+</body>
+</html>
